@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # MySQL Service
+  mysql-container:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root-password
+      MYSQL_DATABASE: benni_demo_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: my-password
+    ports:
+      - "3306:3306"
+    networks:
+      - my-network
+
+  # Spring Boot Application Service
+  spring-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: your-spring-app-image:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql-container
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-container:3306/benni_demo_db
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: my-password
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge
