@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask API Response</title>
+</head>
+<body>
+
+<h1>Messages from Flask API:</h1>
+<ul id="messagesList"></ul>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const apiUrl = 'http://localhost:8080/messages';  // Assuming the HTML file is served from the same domain as the Flask API
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(messages => {
+                // Handle the API response data
+                const messagesList = document.getElementById('messagesList');
+                messages.forEach(message => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = message.messageText;
+                    messagesList.appendChild(listItem);
+                });
+            })
+            .catch(error => {
+                // Handle errors
+                console.error('Error fetching data:', error);
+            });
+    });
+</script>
+
+</body>
+</html>
