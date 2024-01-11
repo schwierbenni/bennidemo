@@ -2,9 +2,63 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Message</title>
 </head>
 <body>
+
+<h1>Create Message</h1>
+
+<form id="createForm">
+    <label for="messageText">Message Text:</label>
+    <input type="text" id="messageText" name="messageText" required>
+
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="isRead">Read:</label>
+    <input type="checkbox" id="isRead" name="isRead">
+
+    <button type="submit">Create Message</button>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const createForm = document.getElementById('createForm');
+        const apiUrl = 'http://localhost:8080/messages';
+
+        // Event listener for form submission
+        createForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            // Get form data
+            const formData = new FormData(createForm);
+            const newMessage = {
+                messageText: formData.get('messageText'),
+                name: formData.get('name'),
+                read: formData.get('isRead') === 'on'
+            };
+
+            // Make API request to create a new message
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newMessage)
+            })
+                .then(response => response.json())
+                .then(createdMessage => {
+                    // Handle the created message (e.g., redirect to the message details page)
+                    console.log('Message created successfully:', createdMessage);
+                })
+                .catch(error => {
+                    // Handle errors
+                    console.error('Error creating message:', error);
+                });
+        });
+    });
+</script>
 
 </body>
 </html>

@@ -2,9 +2,55 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Details</title>
 </head>
 <body>
-  ddd
+
+<h1>Message Details</h1>
+
+<div id="messageDetails">
+    <p><strong>ID:</strong> <span id="messageId"></span></p>
+    <p><strong>Message Text:</strong> <span id="messageText"></span></p>
+    <p><strong>Name:</strong> <span id="name"></span></p>
+    <p><strong>Read:</strong> <span id="isRead"></span></p>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const messageDetails = document.getElementById('messageDetails');
+        const apiUrl = 'http://localhost:8080/messages/';
+
+        // Function to fetch message details
+        function fetchMessageDetails(messageId) {
+            fetch(apiUrl + messageId)
+                .then(response => response.json())
+                .then(message => {
+                    // Populate the message details
+                    document.getElementById('messageId').textContent = message.id;
+                    document.getElementById('messageText').textContent = message.messageText;
+                    document.getElementById('name').textContent = message.name;
+                    document.getElementById('isRead').textContent = message.read ? 'Yes' : 'No';
+                })
+                .catch(error => {
+                    // Handle errors
+                    console.error('Error fetching message details:', error);
+                });
+        }
+
+        // Check if messageId is present in the URL (assuming it's passed as a query parameter)
+        const urlParams = new URLSearchParams(window.location.search);
+        const messageId = urlParams.get('id');
+
+        if (messageId) {
+            // Fetch and populate message details if messageId is present
+            fetchMessageDetails(messageId);
+        } else {
+            // Handle case where messageId is not present (e.g., show an error message)
+            console.error('Message ID not provided in the URL.');
+        }
+    });
+</script>
+
 </body>
 </html>

@@ -10,25 +10,39 @@
 <h1>Messages from Flask API:</h1>
 <ul id="messagesList"></ul>
 
+<!-- Links to other pages -->
+<p><a href="message-create.html">Create New Message</a></p>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const apiUrl = 'http://localhost:8080/messages';  // Assuming the HTML file is served from the same domain as the Flask API
+        const apiUrl = 'http://localhost:8080/messages';
 
-        fetch(apiUrl)
-            .then(response => response.json())
-            .then(messages => {
-                // Handle the API response data
-                const messagesList = document.getElementById('messagesList');
-                messages.forEach(message => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = message.messageText;
-                    messagesList.appendChild(listItem);
+        // Function to fetch and display messages
+        function fetchAndDisplayMessages() {
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(messages => {
+                    const messagesList = document.getElementById('messagesList');
+                    messages.forEach(message => {
+                        // Create a clickable link for each message
+                        const listItem = document.createElement('li');
+                        const link = document.createElement('a');
+                        link.href = `message-detail.html?id=${message.id}`;
+                        link.textContent = message.messageText;
+                        link.style.cursor = 'pointer';
+
+                        // Append the link to the list item
+                        listItem.appendChild(link);
+                        messagesList.appendChild(listItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
                 });
-            })
-            .catch(error => {
-                // Handle errors
-                console.error('Error fetching data:', error);
-            });
+        }
+
+        // Call the function to fetch and display messages
+        fetchAndDisplayMessages();
     });
 </script>
 

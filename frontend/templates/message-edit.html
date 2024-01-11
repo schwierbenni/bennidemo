@@ -3,32 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask API Response</title>
+    <title>Edit Message</title>
 </head>
 <body>
 
-<h1>Messages from Flask API:</h1>
-<ul id="messagesList"></ul>
+<h1>Edit Message</h1>
+
+<form id="editForm">
+    <label for="messageText">Message Text:</label>
+    <input type="text" id="messageText" name="messageText" required>
+
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="isRead">Read:</label>
+    <input type="checkbox" id="isRead" name="isRead">
+
+    <button type="submit">Save Changes</button>
+</form>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const apiUrl = 'http://localhost:8080/messages';  // Assuming the HTML file is served from the same domain as the Flask API
+        const editForm = document.getElementById('editForm');
+        const apiUrl = 'http://localhost:8080/messages/';
 
-        fetch(apiUrl)
-            .then(response => response.json())
-            .then(messages => {
-                // Handle the API response data
-                const messagesList = document.getElementById('messagesList');
-                messages.forEach(message => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = message.messageText;
-                    messagesList.appendChild(listItem);
+        // Function to fetch message details and populate the form
+        function fetchMessageDetails(messageId) {
+            fetch(apiUrl + messageId)
+                .then(response => response.json())
+                .then(message => {
+                    document.getElementById('messageText').value = message.messageText;
+                    document.getElementById('name').value = message.name;
+                    document.getElementById('isRead').checked = message.read;
+                })
+                .catch(error => {
+                    console.error('Error fetching message details:', error);
                 });
+        }
+
+        // Check if messageId is present in the URL (assuming it's passed as a query parameter)
+        const urlParams = new URLSearchParams(window.location.search);
+        const messageId = urlParams.get('id');
+
+        if (messageId) {
+            // Fetch and populate form if messageId is present
+            fetchMessageDetails(messageId);
+        } else {
+            // Handle case where messageId is not present (e.g., show an error message)
+            console.error('Message ID not provided in the URL.');
+        }
+
+        // Event listener for form submission
+        editForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            // Get form data
+            const formData = new FormData(editForm);
+            const editedMessage = {
+                messageText: formData.get('messageText'),
+                name: formData.get('name'),
+                read: formData.get('isRead') === 'on'
+            };
+
+            // Make API request to update the message
+            fetch(apiUrl + messageId, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(editedMessage)
             })
-            .catch(error => {
-                // Handle errors
-                console.error('Error fetching data:', error);
-            });
+                .then(response => response.json())
+                .then(updatedMessage => {
+                    // Handle the updated message (e.g., redirect to the message details page)
+                    console.log('Message updated successfully:', updatedMessage);
+                })
+                .catch(error => {
+                    // Handle errors
+                    console.error('Error updating message:', error);
+                });
+        });
     });
 </script>
 
