@@ -1,7 +1,11 @@
-# Use an official OpenJDK runtime as a parent image
-FROM eclipse-temurin:17-jre-alpine
+FROM maven:3.8.4-openjdk-17 AS builder
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean install
 
-# Set the working directory inside the container
+# Stage 2: Create a smaller runtime image
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 # Copy the application JAR file into the container at /app
