@@ -1,19 +1,24 @@
-FROM maven:3.8.4-openjdk-17 AS builder
-WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-RUN mvn clean install
+# Build the jar file to be abaliable for copy
+FROM maven:3.9.6-eclipse-temurin-17 AS build
+COPY . /usr/src/app
+WORKDIR /usr/src/app
+RUN mvn clean package -DskipTests
 
-# Stage 2: Create a smaller runtime image
+
+# Use an official OpenJDK runtime as a parent image
 FROM eclipse-temurin:17-jre-alpine
+
+# Set the working directory inside the container
 WORKDIR /app
 
 # Copy the application JAR file into the container at /app
-COPY target/bennidemo-0.0.1-SNAPSHOT.jar /app/app.jar
+COPY --from=build /usr/src/app/target/*.jar /app/app.jar
+COPY entrypoint.sh /app/entrypoint.sh
 
 # Expose the port that your application will run on
 EXPOSE 8080
 
-COPY entrypoint.sh /app/entrypoint.sh
+# Set permissions for the entrypoint script
+RUN ["chmod", "+x", "/app/entrypoint.sh"]
 
 ENTRYPOINT ["/bin/bash", "-c", "/app/entrypoint.sh"]
